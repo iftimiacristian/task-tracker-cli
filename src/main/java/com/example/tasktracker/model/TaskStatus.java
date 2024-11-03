@@ -22,4 +22,8 @@ public enum TaskStatus {
         }
         return null;
     }
+
+    public String toString(){
+        return status;
+    }
 }

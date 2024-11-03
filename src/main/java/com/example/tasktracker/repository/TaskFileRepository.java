@@ -26,14 +26,9 @@ public class TaskFileRepository implements TaskRepository {
         return new ArrayList<>(taskMap.values());
     }
 
-    public int add(Task t) {
+    public int add(Task task) {
         int id = idGenerator.incrementAndGet();
-
-        Task task = t.toBuilder()
-                .id(id)
-                .createdAt(new Date())
-                .updatedAt(new Date())
-                .build();
+        task.setId(id);
 
         taskMap.put(task.getId(), task);
         save();

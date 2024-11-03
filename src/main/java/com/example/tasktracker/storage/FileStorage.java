@@ -41,14 +41,14 @@ public class FileStorage implements Storage {
     }
 
     public List<Task> load() {
+        List<Task> tasks = List.of();
         try {
-            return mapper.readValue(file, new TypeReference<List<Task>>() {
-            });
+            tasks = mapper.readValue(file, new TypeReference<List<Task>>() {});
         } catch (IOException e) {
             logger.error("Problem loading list of files", e);
         }
 
-        return List.<Task>of();
+        return tasks;
     }
 
     public void save(List<Task> taskList) {
@@ -63,7 +63,7 @@ public class FileStorage implements Storage {
     }
 
     private void writeToFile(String string) {
-        FileWriter writer = null;
+        FileWriter writer;
         try {
             writer = new FileWriter(FILE_NAME);
         } catch (IOException e) {

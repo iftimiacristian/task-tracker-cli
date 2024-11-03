@@ -1,19 +1,18 @@
 package com.example.tasktracker.command;
 
+import com.example.tasktracker.command.commands.BaseCommand;
 import com.example.tasktracker.exception.InvalidCommandException;
+import com.example.tasktracker.exception.RequiredArgumentException;
 import com.example.tasktracker.logger.AppLogger;
 import com.example.tasktracker.logger.GenericLogger;
 import com.example.tasktracker.service.CliService;
 import com.example.tasktracker.service.TaskService;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class CliCommandHandler implements CommandHandler {
     private final TaskService service;
-    private String[] args;
-    private Command commandType;
+    private BaseCommand command;
     private final AppLogger logger;
 
     public CliCommandHandler(CliService service, GenericLogger logger) {
@@ -22,28 +21,19 @@ public class CliCommandHandler implements CommandHandler {
     }
 
     public void handle(String[] commandArgs) {
+        CommandParser commandParser = new CliCommandParser(commandArgs);
         try {
-            parseCommand(commandArgs);
+            this.command = commandParser.parseCommand();
             execute();
-        } catch (InvalidCommandException e) {
-            logger.error("Command not found", e);
-        }
-    }
-
-    private void parseCommand(String[] commandArgs) throws InvalidCommandException {
-        this.args = commandArgs;
-        Optional<Command> optionalCommandType = Command.fromString(commandArgs[0]);
-        if (optionalCommandType.isEmpty()) {
-            throw new InvalidCommandException("Command not found: " + commandArgs[0]);
-        } else {
-            commandType = optionalCommandType.get();
+        } catch (InvalidCommandException | RequiredArgumentException e) {
+            logger.error(e.getMessage(), e);
         }
     }
 
     private void execute() {
-        switch (commandType) {
+        switch (command.getType()) {
             case LIST -> service.list();
-            case ADD -> service.add(args[1]);
+            case ADD -> service.add(command.getArgs()[0]);
         }
     }
 }
